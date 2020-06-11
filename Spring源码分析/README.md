@@ -18,3 +18,4 @@
   * [16_applyMergedBeanDefinitionPostProcessors源码分析](16_applyMergedBeanDefinitionPostProcessors源码分析.md)
   * [17_populateBean方法源码解析](17_populateBean方法源码解析.md)
   * [18_Spring是如何解决循环依赖的](18_Spring是如何解决循环依赖的.md)
+  * [19_Spring是如何解决循环依赖的](19_Spring监听器源码分析.md)
