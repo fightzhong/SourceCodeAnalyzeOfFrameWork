@@ -6,7 +6,7 @@ AOP源码有关系, 在源码分析的时候, 会适当的删减一部分的代�
 
 ### 调用后置处理器完成AOP的初始化工作的步骤分析
 #### 从整体上分析初始化工作
-- 一、由创建单例bean的入口代码讲起
+##### 一、由创建单例bean的入口代码讲起
 ```java
 if (mbd.isSingleton()) {
   sharedInstance = getSingleton(beanName, () -> {
@@ -19,7 +19,7 @@ if (mbd.isSingleton()) {
 表达式中的方法, 从而开始了创建bean的流程
 ```
 
-- 二、由createBean引出bean的后置处理器
+##### 二、由createBean引出bean的后置处理器
 ```java
 protected Object createBean(String beanName, RootBeanDefinition mbd, Object[] args) {
   // 解析获得bean对应的class对象
@@ -47,7 +47,7 @@ protected Object createBean(String beanName, RootBeanDefinition mbd, Object[] ar
   resolveBeforeInstantiation方法
 ```
 
-- 三、由resolveBeforeInstantiation方法来看看在真正创建bean之前Spring的操作
+##### 三、由resolveBeforeInstantiation方法来看看在真正创建bean之前Spring的操作
 ```java
 protected Object resolveBeforeInstantiation(String beanName, RootBeanDefinition mbd) {
   Object bean = null;
@@ -82,7 +82,7 @@ protected Object resolveBeforeInstantiation(String beanName, RootBeanDefinition 
   展点给程序员在此时此刻实现自己的代理逻辑, 接下来我们看看applyBeanPostProcessorsBeforeInstantiation
   方法的调用
 ```
-- 四、applyBeanPostProcessorsBeforeInstantiation方法调用后置处理器
+##### 四、applyBeanPostProcessorsBeforeInstantiation方法调用后置处理器
 ```java
 protected Object applyBeanPostProcessorsBeforeInstantiation(Class<?> beanClass, String beanName) {
   for (BeanPostProcessor bp : getBeanPostProcessors()) {
@@ -104,7 +104,7 @@ protected Object applyBeanPostProcessorsBeforeInstantiation(Class<?> beanClass, 
 ```
 
 #### AbstractAutoProxyCreator的postProcessBeforeInstantiation方法
-- 一、postProcessBeforeInstantiation方法
+##### 一、postProcessBeforeInstantiation方法
 ```java
 public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
   Object cacheKey = getCacheKey(beanClass, beanName);
@@ -152,7 +152,7 @@ AOP在此时做的事情:
       就可以直接拿来用了
 ```
 
-- 二、isInfrastructureClass筛选出所有的通知类
+##### 二、isInfrastructureClass筛选出所有的通知类
 ```java
 // 调用AnnotationAwareAspectJAutoProxyCreator的isInfrastructureClass
 protected boolean isInfrastructureClass(Class<?> beanClass) {
@@ -174,7 +174,7 @@ protected boolean isInfrastructureClass(Class<?> beanClass) {
   Advice、Advisor、AopInfrastructureBean的子类时将会返回true
 ```
 
-- 三、shouldSkip方法
+##### 三、shouldSkip方法
 ```java
 protected boolean shouldSkip(Class<?> beanClass, String beanName) {
   List<Advisor> candidateAdvisors = findCandidateAdvisors();
@@ -197,7 +197,7 @@ protected boolean shouldSkip(Class<?> beanClass, String beanName) {
 ```
 
 #### findCandidateAdvisors方法分析
-- findCandidateAdvisors
+##### findCandidateAdvisors
 ```java
 protected List<Advisor> findCandidateAdvisors() {
   // Add all the Spring advisors found according to superclass rules.
@@ -220,7 +220,7 @@ protected List<Advisor> findCandidateAdvisors() {
   整合上一步骤的advisors, 即找到所有的通知advisors
 ```
 
-- buildAspectJAdvisors方法构建程序员提供的通知
+##### buildAspectJAdvisors方法构建程序员提供的通知
 ```java
 public List<Advisor> buildAspectJAdvisors() {
   List<String> aspectNames = this.aspectBeanNames;
@@ -301,7 +301,7 @@ return advisors;
   其封装成一个个的Advisor后返回
 ```
 
-- 小小的总结
+##### 小小的总结
 ```
 在findCandidateAdvisors方法中, Spring对容器中所有的类进行扫描, 查找出了所有通知类及通知方法, 并
 将结果缓存了起来, 并且还查找了容器中Advisor类型的类(这些也是通知)
@@ -381,7 +381,7 @@ protected Object initializeBean(final String beanName, final Object bean, @Nulla
 ```
 
 #### 调用AbstractAutoProxyCreator的postProcessAfterInitialization方法完成AOP
-- postProcessAfterInitialization方法
+##### postProcessAfterInitialization方法
 ```java
 public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
   if (bean != null) {
@@ -399,7 +399,7 @@ public Object postProcessAfterInitialization(@Nullable Object bean, String beanN
 }
 ```
 
-- wrapIfNecessary
+##### wrapIfNecessary
 ```java
 protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
   // 这三个判断是对上面AOP初始化工作的一个承前启后, 在AOP初始化工作的时候, 会筛选出所有不用
@@ -433,7 +433,7 @@ protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) 
 }
 ```
 
-- getAdvicesAndAdvisorsForBean获取所有适用于当前bean的通知
+##### getAdvicesAndAdvisorsForBean获取所有适用于当前bean的通知
 ```java
 protected Object[] getAdvicesAndAdvisorsForBean(
     Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
@@ -467,14 +467,14 @@ protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName
   @Before在@After之前执行
 ```
 
-- findAdvisorsThatCanApply方法找到合适的通知
+##### findAdvisorsThatCanApply方法找到合适的通知
 ```java
 在该方法中, 有多个嵌套调用, 不太方便将代码放上来, 笔者通过文字来描述, Spring会循环所有的通知, 对
 每一个通知都会做一件事情, 那就是循环当前类的所有方法, 判断是否满足该通知, 如果满足, 那么就是一个合
 适的通知, 换句话说, 这个方法里面就是一个双层循环, 外层是对通知的循环, 内层是对方法的循环
 ```
 
-- createProxy创建代理对象
+##### createProxy创建代理对象
 ```java
 /**
  * createProxy方法中最主要的工作就是创建一个代理工厂, 在这个代理工厂中定义了AOP对象创建的规则,
@@ -519,7 +519,7 @@ protected Object createProxy(Class<?> beanClass, String beanName,
   来获取原始对象了
 ```
 
-- getProxy方法创建代理对象
+##### getProxy方法创建代理对象
 ```java
 public Object getProxy(@Nullable ClassLoader classLoader) {
   return createAopProxy().getProxy(classLoader);

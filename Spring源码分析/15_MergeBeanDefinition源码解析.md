@@ -10,7 +10,7 @@ bean是因为Spring允许将相同bean的定义给抽出来, 成为一个父Bean
 ```
 
 ### 源码步骤分析
-- getMergedLocalBeanDefinition入口
+#### getMergedLocalBeanDefinition入口
 ```java
 protected RootBeanDefinition getMergedLocalBeanDefinition(String beanName) {
   // Quick check on the concurrent map first, with minimal locking.
@@ -30,7 +30,7 @@ protected RootBeanDefinition getMergedLocalBeanDefinition(String beanName) {
   中
 ```
 
-- getMergedBeanDefinition[没有父类BeanDefinition的情况]
+#### getMergedBeanDefinition[没有父类BeanDefinition的情况]
 ```java
 if (bd.getParentName() == null) {
   // Use copy of given root bean definition.
@@ -51,7 +51,7 @@ if (bd.getParentName() == null) {
   调用克隆方法的时候, 就会new一个该子类, 然后开始克隆, 比如new ConfigurationClassBeanDefinition(this)
 ```
 
-- getMergedBeanDefinition(有父类BeanDefinition的情况)
+#### getMergedBeanDefinition(有父类BeanDefinition的情况)
 ```java
 else {
   // Child bean definition: needs to be merged with parent.
@@ -86,7 +86,7 @@ else {
   可以看看, 就是大量的mbd.setXXX(bd.getXXX)
 ```
 
-- getMergedBeanDefinition[结尾]
+#### getMergedBeanDefinition[结尾]
 ```java
 // Set default singleton scope, if not configured before.
 if (!StringUtils.hasLength(mbd.getScope())) {

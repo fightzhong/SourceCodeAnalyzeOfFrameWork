@@ -81,7 +81,7 @@ AutowiredAnnotationBeanPostProcessor, 不同的后置处理器处理不同的注
 ```
 
 ### AutowiredAnnotationBeanPostProcessor的postProcessMergedBeanDefinition方法
-- postProcessMergedBeanDefinition方法
+#### postProcessMergedBeanDefinition方法
 ```java
 public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition,
                                             Class<?> beanType, String beanName) {
@@ -99,7 +99,7 @@ public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition,
   下面我们分别来讲解下这两个方法
 ```
 
-- findAutowiringMetadata
+#### findAutowiringMetadata
 ```java
 private InjectionMetadata findAutowiringMetadata(String beanName, Class<?> clazz, @Nullable PropertyValues pvs) {
   String cacheKey = (StringUtils.hasLength(beanName) ? beanName : clazz.getName());
@@ -130,7 +130,7 @@ private InjectionMetadata findAutowiringMetadata(String beanName, Class<?> clazz
   员手动的修改了InjectedMetadata中的targetClass, 那么就不能用原来的元数据了, 而是要重新构建一次,
   这也是metadata.targetClass != clazz返回true的情况下Spring也会调用构建方法的原因
 ```
-- buildAutowiringMetadata
+#### buildAutowiringMetadata
 ```java
 private InjectionMetadata buildAutowiringMetadata(final Class<?> clazz) {
   List<InjectionMetadata.InjectedElement> elements = new ArrayList<>();
@@ -216,13 +216,13 @@ ReflectionUtils.doWithLocalMethods(targetClass, method -> {
   被遍历的方法属于其中一类, 则返回该方法的PropertyDescriptor, 如果不是, 比如checkXXX, 则返回null
 ```
 
-- 简单的总结
+#### 简单的总结
 ```
 在buildAutowiringMetadata方法中, Spring将一个类中@Autowired注解标注的方法和属性变为了一个个的
 InjectedElement, 放入到一个elements的集合中, 最后将这个集合放入到InjectionMetadata中并返回
 ```
 
-- checkConfigMembers
+#### checkConfigMembers
 ```java
 public void checkConfigMembers(RootBeanDefinition beanDefinition) {
   Set<InjectedElement> checkedElements = new LinkedHashSet<>(this.injectedElements.size());

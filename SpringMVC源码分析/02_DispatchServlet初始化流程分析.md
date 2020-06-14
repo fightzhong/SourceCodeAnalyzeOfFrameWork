@@ -46,8 +46,8 @@ Servlet作为其顶层接口, 其直接实现类为GenericServlet, 在该类中,
 了填充, GenericServlet的直接子类HttpServlet, 主要是对父类的service方法进行了实现, 对不同类型的请求进
 行判断, 调用不同的doXXX方法, 从而我们可以直接实现HttpServlet来配置我们请求被执行的逻辑
 
-再来看看左半部分的内容, 在左半部分中, 主要的继承关系是HttpServletBean <- FrameworkServlet 
-<- DispatcherServlet, 而其他接口都是Spring中提供的扩展点, 实现XXXAware接口, 那么在Spring容器初始化过
+再来看看左半部分的内容, 在左半部分中, 主要的继承关系是HttpServletBean <#### FrameworkServlet 
+<#### DispatcherServlet, 而其他接口都是Spring中提供的扩展点, 实现XXXAware接口, 那么在Spring容器初始化过
 程中, 合适的时机就会调用该对象的setXX方法, 如果有看过笔者之前分析Spring文章的同学应该就可以清晰的知道,
 在initializeBean方法就是完成这些功能的
 
@@ -58,7 +58,7 @@ Servlet作为其顶层接口, 其直接实现类为GenericServlet, 在该类中,
 <img src="photos/01_DispatcherServlet的继承体系.png">
 
 ### HttpServletBean
-- init方法触发Servlet的生命周期
+#### init方法触发Servlet的生命周期
 ```java
 回顾了下原来的Servlet继承体系, 我们得到一个重要的消息, 子类继承HttpServlet, 实现空参init方法, 则该方
 法在Tomcat等web容器初始化Servlet的时候会调用该init方法, 于是我们可以联想到, 好像仅仅只有这个方式才能让
@@ -95,7 +95,7 @@ public final void init() throws ServletException {
     PropertyValues中保存了什么了
 ```
 
-- ServletConfigPropertyValues的构造方法的调用
+#### ServletConfigPropertyValues的构造方法的调用
 ```java
 private static class ServletConfigPropertyValues extends MutablePropertyValues {}
 
@@ -142,7 +142,7 @@ public ServletConfigPropertyValues(ServletConfig config, Set<String> requiredPro
     供哪些初始化参数
 ```
 
-- 总结
+#### 总结
 ```
 HttpServletBean这个类实现了HttpServlet, 实现了init空参方法, 在空参方法中, 将ServletConfig中配置的
 initParam值设置到DispatcherServlet中的属性中(也有可能在父类), 然后调用了initServletBean模板方法就结
@@ -150,7 +150,7 @@ initParam值设置到DispatcherServlet中的属性中(也有可能在父类), �
 ```
 
 ### FrameworkServlet
-- initServletBean
+#### initServletBean
 ```java
 protected final void initServletBean() throws ServletException {
     this.webApplicationContext = initWebApplicationContext();
@@ -164,7 +164,7 @@ protected final void initServletBean() throws ServletException {
     DispatcherServlet会持有一个指向web容器的引用
 ```
 
-- initWebApplicationContext初始化Web容器-第一部分
+#### initWebApplicationContext初始化Web容器-第一部分
 ```java
 protected WebApplicationContext initWebApplicationContext() {
     WebApplicationContext rootContext =
@@ -202,7 +202,7 @@ public static WebApplicationContext getWebApplicationContext(ServletContext sc, 
     是null        
 ```
 
-- initWebApplicationContext初始化Web容器-第二部分
+#### initWebApplicationContext初始化Web容器-第二部分
 ```java
 protected WebApplicationContext initWebApplicationContext() { 
     ...................
@@ -245,7 +245,7 @@ protected WebApplicationContext initWebApplicationContext() {
     所以通常情况下this.webApplicationContext是为null的
 ```
 
-- initWebApplicationContext初始化Web容器-第三部分
+#### initWebApplicationContext初始化Web容器-第三部分
 ```java
 protected WebApplicationContext initWebApplicationContext() { 
     ...................
@@ -320,7 +320,7 @@ protected WebApplicationContext findWebApplicationContext() {
     this.refreshEventReceived为true, 防止多次调用
 ```
 
-- createWebApplicationContext方法创建web容器
+#### createWebApplicationContext方法创建web容器
 ```java
 protected WebApplicationContext createWebApplicationContext(@Nullable ApplicationContext parent) {
     Class<?> contextClass = getContextClass();
@@ -354,7 +354,7 @@ protected WebApplicationContext createWebApplicationContext(@Nullable Applicatio
     configureAndRefreshWebApplicationContext方法
 ```
 
-- configureAndRefreshWebApplicationContext方法完成容器的刷新动作
+#### configureAndRefreshWebApplicationContext方法完成容器的刷新动作
 ```java
 protected void configureAndRefreshWebApplicationContext(ConfigurableWebApplicationContext wac) {
     wac.setServletContext(getServletContext());
@@ -384,7 +384,7 @@ protected void configureAndRefreshWebApplicationContext(ConfigurableWebApplicati
     方法就是完成Spring容器的初始化流程的, 这里就不进行展开了
 ```
 
-- SourceFilteringListener监听器
+#### SourceFilteringListener监听器
 ```java
 private class ContextRefreshListener implements ApplicationListener<ContextRefreshedEvent> {
     @Override

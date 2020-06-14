@@ -170,7 +170,7 @@ args是一个Object的数组, 其实应用场景很简单, 假设一个bean是�
 ```
 
 ### determineConstructorsFromBeanPostProcessors方法详解
-- 查找后置处理器
+#### 查找后置处理器
 ```java
 if (beanClass != null && hasInstantiationAwareBeanPostProcessors()) {
   for (BeanPostProcessor bp : getBeanPostProcessors()) {
@@ -191,7 +191,7 @@ if (beanClass != null && hasInstantiationAwareBeanPostProcessors()) {
   其它子类返回的均为null
 ```
 
-- AutowiredAnnotationBeanPostProcessor.determineCandidateConstructors方法
+#### AutowiredAnnotationBeanPostProcessor.determineCandidateConstructors方法
 ```java
 // 这里仅仅截取了重要的部分, 对于一些日志打印以及不会影响主线的代码就略过了(比如一开始的@Lookup注
 // 解的解析), 以及一些异常的捕捉代码也会进行略过

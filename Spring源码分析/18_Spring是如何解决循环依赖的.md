@@ -56,7 +56,7 @@ protected Object getSingleton1(String beanName, boolean allowEarlyReference) {
   sharedInstance为null, 则Spring开始走getSinleton2来真正的创建A类实例
 ```
 
-- getSingleton2方法中调用createBean方法
+#### getSingleton2方法中调用createBean方法
 ```java
 Object singletonObject = this.singletonObjects.get(beanName);
 if (singletonObject == null) {
@@ -75,7 +75,7 @@ return singletonObject;
   集合中是存在A类的beanName的, 换句话说, 如果再一次调用getSingleton1方法, 是能进入到那个if判断中
 ```
 
-- createBean方法最终调到了doCreateBean方法
+#### createBean方法最终调到了doCreateBean方法
 ```java
 createBean方法中调用了resolveBeforeInstantiation方法, 之后调用了doCreateBean方法, 之前我们在解
 析AOP源码的时候已经对该方法进行了详细的描述, 里面完成AOP的初始化工作, 找出了所有的通知等
