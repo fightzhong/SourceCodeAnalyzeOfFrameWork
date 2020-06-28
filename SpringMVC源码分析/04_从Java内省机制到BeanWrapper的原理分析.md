@@ -1,10 +1,6 @@
 ## Java内省机制
 ### 描述
 ```
-之所以在SpringMVC源码分析中穿插这么一篇关于Java知识的文章, 是因为我们即将分析的HandlerAdapter底层对数据
-的绑定就是基于Java内省机制的, 在之前Spring源码分析中, 笔者也或多或少提到过, 但是当时没有细讲, 到了
-SpringMVC中就不的不提了, 不然有些代码可能会让读者感到迷惑
-
 在这里笔者先以我自己的理解来说下什么是Java的内省机制, Java内省机制是对反射的一种封装, 是Java提供给开发
 者对一个对象属性的查看和操作、方法的操作以及对象的描述等, 或许这样说比较抽象, 之后我们会举一些例子来说明
 
@@ -88,9 +84,7 @@ public static void main (String[] args) throws Exception{
 
     因为Java内省机制是有一定的规范的, 查找一个属性的get/set方法, 需要将该属性的第一个字母变成大写, 然后
     前面拼接上get/set前缀, 由于我们编辑器生成的get/set方法在属性前两个字母一大一小的情况下, 不会改变其
-    set和get方法的前两个字母, 所以导致了报错, 这一点需要注意, 笔者之前可是在项目中吃过一次亏的!!!因为
-    SpringMVC的数据绑定就是基于Java的内省机制来完成的, 那么当笔者的一个属性开头两个字母是一大一小的时候
-    死活绑定不到对应的数据.......然而在内部处理的时候, 异常已经被吞掉了....
+    set和get方法的前两个字母, 所以导致了报错, 这一点需要注意
 ```
 
 ### PropertyEditor属性编辑器
@@ -265,6 +259,7 @@ public class CachedIntrospectionResults {
 ```
 
 ### BeanWrapper
+- BeanWrapper完成属性设置原理
 ```java
 public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements BeanWrapper {
 	@Nullable
@@ -274,7 +269,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 分析: 
     可以看到, BeanWrapper实例中内置了一个CachedIntrospectionResults, 之前分析DispathcherSerlvet的
     初始化流程的时候, 小小的说明了下BeanWrapper的作用, 但是没有分析其怎么实现属性的设置的, 这个时候就
-    有必要说一下了, 因为其跟我们SpringMVC数据绑定有点关系
+    详细说一下了
 
     那既然内部存储了一个CachedIntrospectionResults实例, 大家应该很容易的想到, 内部就是通过该实例来获取
     对应的属性描述器, 然后获取读方法和写方法来设置属性的吗?确实如此, 接下来我们看看setPropertyValue这个
@@ -305,6 +300,45 @@ protected BeanPropertyHandler getLocalPropertyHandler(String propertyName) {
 是不是觉得豁然开朗, 原来BeanWrapper中, 最终就是通过PropertyDescriptor来完成属性的设置的！！！！
 ```
 
+- BeanWrapper整合PropertyEditor
+```java
+先来看一个例子:
+public class Customer {
+    private Date birth;
+
+    getter / setter / toString    
+}
+
+
+public static void main(String[] args) {
+    Customer customer = new Customer();
+
+    BeanWrapper beanWrapper = new BeanWrapperImpl( customer );
+    beanWrapper.registerCustomEditor(Date.class, new PropertyEditorSupport() {
+        @Override
+        public void setAsText(String text) throws IllegalArgumentException {
+            SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+            setValue( dateFormat.parse( text ) );
+        }
+    });
+
+    beanWrapper.setPropertyValue( "birth", "2020-06-26 14:33:22" );
+    System.out.println( customer );
+}
+
+分析:
+    之前的文章中涉及到BeanWrapper的时候, 笔者仅仅是利用BeanWrapper的setPropertyValue方法来完成了属性
+    的设置, 我们知道, 最终是转为了Java内省机制的PropertyDescriptor来反射完成的, 而在这个例子中, 我们
+    利用registerCustomEditor方法往BeanWrapper中注册了一个PropertyEditor:
+        void registerCustomEditor(Class<?> requiredType, PropertyEditor propertyEditor);
+
+    并且重写了其setAsText方法, 于是, 字符串到Date类型的设置就会被这个PropertyEditor所接管, 从而完成了
+    字符串到Date类型的设置, 这就是BeanWrapper整合PropertyEditor的例子, 源码的话就不进行分析了, 大家
+    有兴趣可以去debug看看, 如果上面的东西了解了的话, 这一块源码看起来应该是不会吃力的, 在BeanWrapper
+    中维护了这么一个Map(其实是在其父类PropertyEditorRegistrySupport中):
+        private Map<Class<?>, PropertyEditor> customEditors;
+```
+
 ### 总结
 ```
 我们从Java内省机制进行出发, 引出了PropertyDescriptor、PropertyEditor(类型转换用)、Introspector、
@@ -312,7 +346,7 @@ BeanInfo这四个Java内省机制中的核心类, 同时也捋清楚了内省机
 CachedIntrospectionResults类, 该类是Spring对内省机制中获得的数据的缓存, 进而引出了BeanWrapper的实现
 原理, 里面内置了一个CachedIntrospectionResults对象, 对属性的操作最终就会变成该对象中的
 PropertyDescriptor的操作, 需要说明的是, CachedIntrospectionResults还能提供嵌套的属性设置, 这个需要
-注意, 其实Spring对Java的内省机制的封装还有很多很多可以说的, 但是如果仅仅是为了读懂SpringMVC的源码的话,
-上面这些内容就够了, 或许在不久的将来, 笔者会专门写一个系列来描述Spring对Java内省机制的封装, 大家可以
-期待期待哈.....
+注意, 与此同时, BeanWrapper也整合了PropertyEditor, 从而可以灵活完成自定义解析器的功能, 其实Spring对
+Java的内省机制的封装还有很多很多可以说的, 或许在不久的将来, 笔者会专门写一个系列来描述Spring对Java内省
+机制的封装, 大家可以期待期待哈.....
 ```
